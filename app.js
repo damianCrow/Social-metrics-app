@@ -614,10 +614,10 @@ function exportTableToCSV($table, filename) {
 $(".export").on('click', function (event) {
     
     if(this.innerHTML === 'Export Vine table as CSV') {
-      exportTableToCSV.apply(this, [$('#rows2'), 'vineTable.csv']);
+      exportTableToCSV.apply(this, [$('#rows2'), $('#vine-heading').text() + '.csv']);
     }
     else {
-      exportTableToCSV.apply(this, [$('#rows'), 'instagramTable.csv']);
+      exportTableToCSV.apply(this, [$('#rows'), $('#instagram-heading').text() + '.csv']);
     }
 });
 
