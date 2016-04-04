@@ -1,0 +1,103 @@
+body { 
+  padding-top: 100px; 
+}
+
+a {
+  text-decoration: none;
+  color: #fff;
+}
+
+#continue {
+  margin: 25px;
+  margin-left: 0;
+  background-color: #B40404;
+}
+
+input {
+  width: 170px;
+  height: 34px;
+  border: 2px solid #08088A;
+  border-radius: 3px;
+  float: left;
+  margin-right: 15px;
+  font-size: 12px;
+}
+
+td {
+  text-align: center;
+  border-bottom:solid 1px #000;
+  border-right:solid 1px #000;
+}
+
+table {
+  border-left: solid 1px #000;
+  border-spacing: 0;
+}
+
+.header-row.overide td {
+  border: 1.5px solid #08088A;
+  border-left: 0;
+  border-top-color: #08088A;
+  font-weight: 900;
+  background-color: #D9D4C4;
+}
+
+.header-row td:first-child {
+  border-left: 1.5px solid #08088A;
+}
+
+#content {
+  float: left;
+  width: 100%;
+}
+
+#loading {
+  overflow: hidden;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  opacity: 0.95;
+  padding: 15% 1%;
+  text-align: center;
+  background-image: url(loading.gif);
+  background-repeat: no-repeat;
+  background-position: center 100px;
+} 
+
+a.export:hover, a.export:focus {
+  color: #cccccc;
+  text-decoration: none;
+}
+
+.btn.btn-primary {
+  margin-bottom: 2%;
+}
+
+div.navbar-form.navbar-left, #search-input, div#navbar {
+
+  background-color: #D9D4C4;
+  border-color: #D9D4C4;
+}
+
+nav.navbar {
+  background-color: #D9D4C4;
+  border-color: #08088A;
+}
+
+#start-date, #end-date {
+  background-image: url('images/calendar-icon.png');
+  background-size: 16%;
+  background-repeat: no-repeat;
+  padding-left: 5px;
+  background-position: 97% 42%
+}
+
+@media screen and (max-width: 1032px) and (min-width: 768px) {
+
+  #search-input {
+    display: none; 
+  }
+}

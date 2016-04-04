@@ -1,0 +1,25 @@
+{
+  "name": "vine-instagram-metrics",
+  "version": "1.0.0",
+  "description": "a metrics app for vine and instagram",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^1.5.2",
+    "cron": "^1.1.0",
+    "request": "^2.69.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/damianCrow/Vine-metrics-app.git"
+  },
+  "author": "damianCrow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/damianCrow/Vine-metrics-app/issues"
+  },
+  "homepage": "https://github.com/damianCrow/Vine-metrics-app#readme"
+}
