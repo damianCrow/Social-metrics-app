@@ -131,7 +131,7 @@ function creatTableHeaderRow() {
 
   var tableHeaders = [
     'Market / Region',
-    'Date',
+    // 'Date',
     'Total Reach Potential',
     'Posts',
     'Engagement',
@@ -197,7 +197,7 @@ function displayApiResponse(getInfoResponseObj, getAdditionalInfoResponseObj, ht
 
   relevantInfo.push({
     region: getInfoResponseObj.data.username,
-    date_stamp: currentDate(),
+    // date_stamp: currentDate(),
     totalReachPotential: getInfoResponseObj.data.followerCount * getInfoResponseObj.data.postCount,
     posts: getInfoResponseObj.data.postCount,
     engagement: getInfoResponseObj.data.loopCount + revines + getInfoResponseObj.data.likeCount + comments,
@@ -273,6 +273,9 @@ function getLiveData(accountId) {
 
           getInstagramData(dataArray[i]);
         }
+
+        $('#instagram-heading').children("span").remove();
+        $('#instagram-heading').append(' <span class="date">' + currentDate() + '</span>');
       }
     });
 
@@ -287,6 +290,9 @@ function getLiveData(accountId) {
 
           getInfo('GET', dataArray[i][0]);
         }
+
+        $('#vine-heading').children("span").remove();
+        $('#vine-heading').append(' <span class="date">' + currentDate() + '</span>');
       }
     });
   }
@@ -302,7 +308,7 @@ function getLiveData(accountId) {
       
         var tableObj = {id:'', username:'', date:'', totalReachPotential:0, posts:0, engagement:0, newAudience:0, totalAudience:0};
         tableObj.id = data.data.id;
-        tableObj.date = currentDate();
+        // tableObj.date = currentDate();
         tableObj.username = data.data.username;
         var region = {region: tableObj.username};
         tableObj.totalReachPotential = data.data.counts.media * data.data.counts.followed_by;
@@ -312,7 +318,7 @@ function getLiveData(accountId) {
 
         var string = '<tr>';
             string+= '<td id="account'+tableObj.id+'">'+tableObj.username+'</td>';
-            string+= '<td id="date'+tableObj.id+'">'+tableObj.date+'</td>';
+            // string+= '<td id="date'+tableObj.id+'">'+tableObj.date+'</td>';
             string+= '<td id="totalReachPotential'+tableObj.id+'">'+tableObj.totalReachPotential+'</td>';
             string+= '<td id="posts'+tableObj.id+'">'+tableObj.posts+'</td>';
             string+= '<td id="newAudience'+tableObj.id+'">'+tableObj.newAudience+'</td>';
@@ -415,6 +421,11 @@ function getMetricsByDateRange() {
         checkArrayLength(dataArray[2], dataArray[3], 'vine');
 
         checkArrayLength(dataArray[0], dataArray[1], 'instagram');
+
+        $('#vine-heading').children("span").remove();
+        $('#instagram-heading').children("span").remove();
+        $('#vine-heading').append(' <span class="date">' + startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-') + '</span>');
+        $('#instagram-heading').append(' <span class="date">' + startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-') + '</span>');
       }
     });
   }
@@ -488,7 +499,7 @@ function sortData(array1, array2, startDate, endDate, account) {
 
         outputArray.push({
           region: groupedArray[0][2], 
-          date: startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-'),
+          // date: startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-'),
           totalReachPotential: posts * followers,
           posts: posts,
           engagement: engagement,
@@ -512,7 +523,7 @@ function sortData(array1, array2, startDate, endDate, account) {
   
         var string = '<tr>';
             string+= '<td>'+toTitleCase(groupedArray[0][2].replace(/[_-]/g, ''));+'</td>';
-            string+= '<td>'+startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-')+'</td>';
+            // string+= '<td>'+startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-')+'</td>';
             string+= '<td>'+(posts * followers)+'</td>';
             string+= '<td>'+posts+'</td>';
 
