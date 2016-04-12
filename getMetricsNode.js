@@ -2,11 +2,10 @@ var http = require('http');
 var urlObj = require('url');
 var async = require('async');
 var requestObj = require('request');
-var port = 8080;
 var access_token = '16751804.cf0499d.5bbac88dc8004b6d823bea2d95296b4e';
 
-// getAccounts('http://localhost:1314/vine&InstagramMetrics/vineAddData.php?accounts=get', 'vine');
-// getAccounts('http://localhost:1314/vine&InstagramMetrics/instagramAddData.php?accounts=get', 'instagram');
+getAccounts('http://localhost:1314/vine&InstagramMetrics/vineAddData.php?accounts=get', 'vine');
+getAccounts('http://localhost:1314/vine&InstagramMetrics/instagramAddData.php?accounts=get', 'instagram');
 
 function getAccounts(url, media) {
 
@@ -131,13 +130,13 @@ function sortData(response1, response2, media, accountId, storedMedia) {
 
     	if (storedMedia == undefined) {
 
-    		createSaveObject(totalLikes, totalComments);
+    		createSaveObject(totalLikes, totalComments, accountId);
     	}
 			else {
 
 				storedMedia[0] += totalLikes;
 				storedMedia[1] += totalComments;
-				createSaveObject(storedMedia[0], storedMedia[1]);
+				createSaveObject(storedMedia[0], storedMedia[1], accountId);
 			}
 		}
 		
@@ -155,7 +154,7 @@ function sortData(response1, response2, media, accountId, storedMedia) {
 			getAdditionalData(accountId, response1, 'instagram', response2.pagination.next_url, storedMedia);	
 		}
 
-    function createSaveObject(likes, comments) {
+    function createSaveObject(likes, comments, accountId) {
 
       var instagramDataToSave = {
         username: response1.data.username,
@@ -181,7 +180,7 @@ function sendData(objToSend, url) {
 	 	console.log('ok ' + count);
 	 }
 	 else {
-	 	console.log(error);
+	 	console.log(body);
 	 }
 	});
 }  
@@ -190,7 +189,9 @@ http.createServer(function(request, response) {
 
 	response.writeHead(200, { 
     'Content-Type': 'text/plain',
-    'Access-Control-Allow-Origin': '*' 
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': 'http://social.metrics.honeybunker.com',
+    'Access-Control-Allow-Origin': 'http://localhost'
   });
 
   var parsedUrl = urlObj.parse(request.url, true); 
@@ -222,9 +223,8 @@ http.createServer(function(request, response) {
 
 				  	if(caller === 'addAccountToDatabase') {
 
-				  		callback(null, getDataResponseObj);
+				  		return callback(null, getDataResponseObj);
 
-				  		return;
 				  	}
 				  	else {
 
@@ -232,7 +232,7 @@ http.createServer(function(request, response) {
 				  	}
 	      	}
 	      	else {
-				  	callback(error);
+				  	return callback('ERROR ' + body);
 				  }
 	      })
 	    },
@@ -248,7 +248,7 @@ http.createServer(function(request, response) {
 				  }
 				  else {
 
-				  	callback(error); 
+				   	callback("ERROR" + body); 
 				  }
 				})
 	    }
@@ -256,11 +256,16 @@ http.createServer(function(request, response) {
 		
 		function(err, results){
 
-			response.end(JSON.stringify(results));
+			if(err) {
+				response.end(JSON.stringify(err));
+			}
+			else {
+				response.end(JSON.stringify(results));
+			}
 		});
   } 
   else {
     response.statusCode = 404;
     response.end();
   }
-}).listen(port);       
+}).listen(8124);       

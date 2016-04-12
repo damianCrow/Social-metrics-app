@@ -4,36 +4,6 @@ var demo = document.getElementById('demo');
 
 // GET THE CURRENT DATE \\
 
-$(function () {
-   $("#start-date").datepicker({
-     minDate: new Date(2016, 3 - 1, 1),
-     dateFormat: "yy-mm-dd",
-     changeMonth: true,
-     numberOfMonths: 1,
-     changeYear: true,
-     onClose: function (selectedDate, inst) {
-
-       var minDate = new Date(Date.parse(selectedDate));
-       minDate.setDate(minDate.getDate() + 1);
-       $("#end-date").datepicker("option", "minDate", minDate);
-    }
-   });
-
-   $("#end-date").datepicker({
-       minDate: "+1D",
-       dateFormat: "yy-mm-dd",
-       changeMonth: true,
-       numberOfMonths: 1,
-       changeYear: true,
-       onClose: function (selectedDate, inst) {
-
-         var maxDate = new Date(Date.parse(selectedDate));
-         maxDate.setDate(maxDate.getDate() - 1);
-         $("#start-date").datepicker("option", "maxDate", maxDate);
-       }
-   });
- });
-
 function currentDate() {
   var today = new Date();
   var dd = today.getDate();  
@@ -74,64 +44,53 @@ function getInfo(requestType, accountId) {
       handleResponse('ERROR: Account id is incorrect! Account id should be all digits, for example: 1246689485', 3000);
     }
 
-    requestNode(accountId, 'getInfo');
+
+    $.ajax({
+      type: requestType,
+      dataType: "jsonp",
+      url: 'https://json2jsonp.com/?url='+encodeURIComponent(url),
+      success: function(data) {
+        
+        var getInfoResponseObj = data;
+
+        getAdditionalInfo(accountId, getInfoResponseObj); 
+      },
+      error: function() {
+
+        handleResponse('ERROR: User not found! Please make sure account id is correct.', 3000);
+      }
+    });         
   }
 }
 
-function requestNode(accountId, caller) {
+// GET LIKES AND REVINES INFO FOR THE MOST RECENT 10 POST ON THIS ACCOUNT FROM THE API \\
+
+function getAdditionalInfo(accountId, getInfoResponseObj) {
+
+  var url = 'https://api.vineapp.com/timelines/users/' + accountId;
 
   $.ajax({
     type: 'GET',
-    url: 'http://localhost:8080',
-    data: {
-      accountNumber: accountId,
-      callerFunction: caller
-    },
-    success: function(response) {
-
-      var returnedData = JSON.parse(response);
-
-      if(caller === 'getInfo') {
-
-        displayApiResponse(returnedData[0], returnedData[1], demo, accountId);
-      } 
+    dataType: "jsonp",
+    url: 'https://json2jsonp.com/?url='+encodeURIComponent(url),
+    success: function(data) {
       
-      if(caller === 'addAccountToDatabase') {
+      var getAdditionalInfoResponseObj = data;
 
-        var dbUrl = 'vineAddData.php';
-
-        if(returnedData[0].data.username.substring(0, 4).toLowerCase() != 'ford') {
-
-          confirmAddAccount('The username on this account does not begin with the word Ford!', returnedData[0], dbUrl, accountId);
-        }
-        else {
-
-          var dataToSave = [{
-            account: returnedData[0].data.username,
-            accountId: accountId
-          }];
-          
-          sendArray(dataToSave, dbUrl, 'GET');
-        }
-      }
-    },
-    error: function(error) {
-
-      console.log(error);
+      displayApiResponse(getInfoResponseObj, getAdditionalInfoResponseObj, demo, accountId); 
     }
-  });
+  });         
 }
 
 // CREATE AND DISPLAY TABLE HEADERS \\
 
 var table = document.createElement('table');
-table.classList.add('table', 'table-hover');
 
 function creatTableHeaderRow() {
 
   var tableHeaders = [
     'Market / Region',
-    // 'Date',
+    'Date',
     'Total Reach Potential',
     'Posts',
     'Engagement',
@@ -142,7 +101,7 @@ function creatTableHeaderRow() {
   var headerRow = table.insertRow();
   table.classList.add('table');
   table.id = 'rows2';
-  headerRow.classList.add('header-row', 'overide');
+  headerRow.classList.add('header-row');
 
   for(var i = 0; i < tableHeaders.length; i++) {
 
@@ -197,7 +156,7 @@ function displayApiResponse(getInfoResponseObj, getAdditionalInfoResponseObj, ht
 
   relevantInfo.push({
     region: getInfoResponseObj.data.username,
-    // date_stamp: currentDate(),
+    date_stamp: currentDate(),
     totalReachPotential: getInfoResponseObj.data.followerCount * getInfoResponseObj.data.postCount,
     posts: getInfoResponseObj.data.postCount,
     engagement: getInfoResponseObj.data.loopCount + revines + getInfoResponseObj.data.likeCount + comments,
@@ -273,9 +232,6 @@ function getLiveData(accountId) {
 
           getInstagramData(dataArray[i]);
         }
-
-        $('#instagram-heading').children("span").remove();
-        $('#instagram-heading').append(' <span class="date">' + currentDate() + '</span>');
       }
     });
 
@@ -290,11 +246,8 @@ function getLiveData(accountId) {
 
           getInfo('GET', dataArray[i][0]);
         }
-
-        $('#vine-heading').children("span").remove();
-        $('#vine-heading').append(' <span class="date">' + currentDate() + '</span>');
       }
-    });
+    });    
   }
    
   function getInstagramData(userID) {
@@ -308,7 +261,7 @@ function getLiveData(accountId) {
       
         var tableObj = {id:'', username:'', date:'', totalReachPotential:0, posts:0, engagement:0, newAudience:0, totalAudience:0};
         tableObj.id = data.data.id;
-        // tableObj.date = currentDate();
+        tableObj.date = currentDate();
         tableObj.username = data.data.username;
         var region = {region: tableObj.username};
         tableObj.totalReachPotential = data.data.counts.media * data.data.counts.followed_by;
@@ -318,7 +271,7 @@ function getLiveData(accountId) {
 
         var string = '<tr>';
             string+= '<td id="account'+tableObj.id+'">'+tableObj.username+'</td>';
-            // string+= '<td id="date'+tableObj.id+'">'+tableObj.date+'</td>';
+            string+= '<td id="date'+tableObj.id+'">'+tableObj.date+'</td>';
             string+= '<td id="totalReachPotential'+tableObj.id+'">'+tableObj.totalReachPotential+'</td>';
             string+= '<td id="posts'+tableObj.id+'">'+tableObj.posts+'</td>';
             string+= '<td id="newAudience'+tableObj.id+'">'+tableObj.newAudience+'</td>';
@@ -377,9 +330,14 @@ function getLikes(thisObj, thisUrl) {
 
 // FILTER METRICS BY DATE RANGE CODE \\
 
+function changeDateFormat(dateString) {
+  var desiredDateFormat = dateString.split(/[.,/ ]+/).reverse().join('-');
+  return desiredDateFormat;
+}
+
 function getMetricsByDateRange() {
 
-  var dateValidater = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+  var dateValidater = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
   var startDate = document.getElementById('start-date').value;
   var endDate = document.getElementById('end-date').value;
 
@@ -388,8 +346,8 @@ function getMetricsByDateRange() {
     deleteRows();
 
     var dateRange = {
-      start: startDate, 
-      end: endDate
+      start: changeDateFormat(startDate), 
+      end: changeDateFormat(endDate)
     }
 
     $.ajax({
@@ -421,11 +379,6 @@ function getMetricsByDateRange() {
         checkArrayLength(dataArray[2], dataArray[3], 'vine');
 
         checkArrayLength(dataArray[0], dataArray[1], 'instagram');
-
-        $('#vine-heading').children("span").remove();
-        $('#instagram-heading').children("span").remove();
-        $('#vine-heading').append(' <span class="date">' + startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-') + '</span>');
-        $('#instagram-heading').append(' <span class="date">' + startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-') + '</span>');
       }
     });
   }
@@ -499,7 +452,7 @@ function sortData(array1, array2, startDate, endDate, account) {
 
         outputArray.push({
           region: groupedArray[0][2], 
-          // date: startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-'),
+          date: startDate + ' - ' + endDate,
           totalReachPotential: posts * followers,
           posts: posts,
           engagement: engagement,
@@ -523,7 +476,7 @@ function sortData(array1, array2, startDate, endDate, account) {
   
         var string = '<tr>';
             string+= '<td>'+toTitleCase(groupedArray[0][2].replace(/[_-]/g, ''));+'</td>';
-            // string+= '<td>'+startDate.split(/[-]+/).reverse().join('-') + ' - ' + endDate.split(/[-]+/).reverse().join('-')+'</td>';
+            string+= '<td>'+startDate + ' - ' + endDate+'</td>';
             string+= '<td>'+(posts * followers)+'</td>';
             string+= '<td>'+posts+'</td>';
 
@@ -614,10 +567,10 @@ function exportTableToCSV($table, filename) {
 $(".export").on('click', function (event) {
     
     if(this.innerHTML === 'Export Vine table as CSV') {
-      exportTableToCSV.apply(this, [$('#rows2'), $('#vine-heading').text() + '.csv']);
+      exportTableToCSV.apply(this, [$('#rows2'), 'vineTable.csv']);
     }
     else {
-      exportTableToCSV.apply(this, [$('#rows'), $('#instagram-heading').text() + '.csv']);
+      exportTableToCSV.apply(this, [$('#rows'), 'instagramTable.csv']);
     }
 });
 
@@ -649,7 +602,7 @@ function addAccountToDatabase() {
           }
           else {
 
-            dataToSave = [{
+            var dataToSave = [{
               account: responseData.data.username,
               accountId: accountId
             }];
@@ -661,7 +614,36 @@ function addAccountToDatabase() {
     }
     else {
 
-      requestNode(accountId, 'addAccountToDatabase');
+      url = 'https://api.vineapp.com/users/profiles/' + accountId;
+      dbUrl = 'vineAddData.php';
+
+      $.ajax({
+        dataType: "jsonp",
+        type: 'GET',
+        url: 'https://json2jsonp.com/?url='+encodeURIComponent(url),
+        success: function(data) {
+
+          var responseData = JSON.parse(data);
+
+          if(responseData.data.username.substring(0, 4).toLowerCase() != 'ford') {
+
+            confirmAddAccount('The username on this account does not begin with the word Ford!', responseData, dbUrl, accountId);
+          }
+          else {
+
+            var dataToSave = [{
+              account: responseData.data.username,
+              accountId: accountId
+            }];
+            
+            sendArray(dataToSave, dbUrl, 'GET');
+          }
+        },
+        error: function() {
+
+          handleResponse('ERROR: This account has not been found!', 3000);
+        }
+      });
     }
   }
   else {
@@ -680,8 +662,8 @@ function confirmAddAccount(message, responseData, dbUrl, accountId) {
 
     $('#loading').html('<h1>'+message+'<h1>' + 
       '<br>' + 
-      '<button class="btn btn-danger" id="continue">' + "Add account anyway" + '</button>' +
-      '<button class="btn btn-info" id="cancel">' + "Cancel" + '</button>'
+      '<button id="continue">' + "Add account anyway" + '</button>' +
+      '<button id="cancel">' + "Cancel" + '</button>'
     ).show();
 
     $('#continue').click(function() {
